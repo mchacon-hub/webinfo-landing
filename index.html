@@ -28,9 +28,6 @@
       '</div>';
   }
 
-  console.log("DEBUG window.chrome:", !!window.chrome);
-  console.log("DEBUG chrome.runtime:", !!(window.chrome && chrome.runtime));
-  console.log("DEBUG sendMessage:", !!(window.chrome && chrome.runtime && chrome.runtime.sendMessage));
   if (localStorage.getItem(FLAG) === "1") {
     irAWebinfo();
     return;
