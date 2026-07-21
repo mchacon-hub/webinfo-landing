@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Abriendo ficha...</title></head>
+<body style="margin:0">
+<script>
+(function () {
+  var EXT_ID = "cdbcpgbhkgkbjdmajcgcjijkjfdcfjbk";
+  var FLAG = "webinfo_ext_ok_v1";
+  var params = new URLSearchParams(location.search);
+  var producto = params.get("producto") || "";
+  var WEBINFO_URL = "https://webinfo.bodegasesmeralda.com.ar/winfo/wa/r/wblogi60?auto=1&producto=" + encodeURIComponent(producto);
+
+  function irAWebinfo() {
+    location.replace(WEBINFO_URL);
+  }
+
+  function mostrarInstalar() {
+    document.body.innerHTML =
+      '<div style="font-family:Arial,sans-serif;text-align:center;margin-top:70px">' +
+      '<h2>Falta instalar la extensión</h2>' +
+      '<p>Es solo esta vez. Después, el link va a abrir la ficha automáticamente.</p>' +
+      '<a href="ENLACE_DE_INSTALACION_QUE_LE_DES" target="_blank" ' +
+      'style="display:inline-block;font-size:18px;background:#1a73e8;color:#fff;' +
+      'padding:14px 26px;border-radius:8px;text-decoration:none;margin-top:10px">' +
+      'Instalar extensión</a>' +
+      '<p style="margin-top:30px">' +
+      '<a href="javascript:location.reload()">Ya la instalé, reintentar</a></p>' +
+      '</div>';
+  }
+
+  if (localStorage.getItem(FLAG) === "1") {
+    irAWebinfo();
+    return;
+  }
+
+  if (!window.chrome || !chrome.runtime || !chrome.runtime.sendMessage) {
+    mostrarInstalar();
+    return;
+  }
+
+  var respondido = false;
+  var timer = setTimeout(function () {
+    if (!respondido) { respondido = true; mostrarInstalar(); }
+  }, 800);
+
+  try {
+    chrome.runtime.sendMessage(EXT_ID, { type: "PING" }, function (resp) {
+      if (respondido) return;
+      respondido = true;
+      clearTimeout(timer);
+      if (chrome.runtime.lastError || !resp || !resp.ok) {
+        mostrarInstalar();
+      } else {
+        localStorage.setItem(FLAG, "1");
+        irAWebinfo();
+      }
+    });
+  } catch (e) {
+    if (!respondido) { respondido = true; clearTimeout(timer); mostrarInstalar(); }
+  }
+})();
+</script>
+</body>
+</html>
